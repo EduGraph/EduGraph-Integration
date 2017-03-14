@@ -1,0 +1,9 @@
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/Analysis.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/FinalSave.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/SaveSubjectCategories.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/SPARQL.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/RDFExtractor.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/EduGraphApplication.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/SaveTriples.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/ErrorEmail.java
+/Users/hwx/Documents/workspace/edu-graph/src/main/java/org/camunda/bpm/edugraph/extraction/Starter.java

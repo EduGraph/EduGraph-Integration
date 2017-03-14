@@ -1,0 +1,8 @@
+org/camunda/bpm/edugraph/extraction/Analysis.class
+org/camunda/bpm/edugraph/extraction/ErrorEmail.class
+org/camunda/bpm/edugraph/extraction/SaveSubjectCategories.class
+org/camunda/bpm/edugraph/extraction/SPARQL.class
+org/camunda/bpm/edugraph/extraction/FinalSave.class
+org/camunda/bpm/edugraph/extraction/EduGraphApplication.class
+org/camunda/bpm/edugraph/extraction/SaveTriples.class
+org/camunda/bpm/edugraph/extraction/RDFExtractor.class
