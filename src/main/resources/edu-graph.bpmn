@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="edugraph" name="edugraph" isExecutable="true">
+  <bpmn:process id="edu-graph" name="Edu GraF" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="URL submitted">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -43,20 +43,103 @@
       <bpmn:incoming>SequenceFlow_01qy3yc</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0k1u6t0</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_10h13o6</bpmn:incoming>
-      <bpmn:messageEventDefinition camunda:class="org.camunda.bpm.edugraph.extraction.ErrorEmail" />
+      <bpmn:messageEventDefinition camunda:class="org.camunda.bpm.getstarted.edugraph.ErrorEmail" />
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1sobpg8" sourceRef="BoundaryEvent_1eetodt" targetRef="EndEvent_14t3eyd" />
     <bpmn:sequenceFlow id="SequenceFlow_0nkhqh0" sourceRef="BoundaryEvent_0lrtx9r" targetRef="EndEvent_14t3eyd" />
-    <bpmn:serviceTask id="ServiceTask_1kk4i6n" name="transfer data to live system" camunda:class="org.camunda.bpm.edugraph.extraction.FinalSave">
+    <bpmn:serviceTask id="ServiceTask_1kk4i6n" name="transfer data to live system">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">text/turtle</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-live/data</camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="freemarker"><![CDATA[@prefix ns1:   <http://akwi.de/ns/bise#> .
+
+<http://www.fh-flensburg.de/2abc> ns1:bisePillar [ a               ns1:BISEPillarShare ;
+                               ns1:pillarBAM  ${bwlShare} ;
+                               ns1:pillarBIS  ${wiShare} ;
+                               ns1:pillarCSC  ${infShare};
+                               ns1:pillarNN  ${nnShare}
+                             ] ;]]></camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="output">
+              <camunda:script scriptFormat="Javascript"><![CDATA[var response = connector.getVariable("response");
+if (statusCode == 403) {
+connector.setVariable("storeError", response);
+    throw new org.camunda.bpm.engine.delegate.BpmnError("DatabaseError");
+}]]></camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>soap-http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1h0l6p8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1xlctlo</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_1gr5io6" name="call SPARQL endpoint" camunda:class="org.camunda.bpm.edugraph.extraction.SPARQL">
+    <bpmn:serviceTask id="ServiceTask_1gr5io6" name="call SPARQL endpoint">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">text/turtle</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload"><![CDATA[SELECT ?subject ?predicate ?object
+WHERE {
+  ?subject ?predicate ?object
+}]]></camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1s936iu</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0cy5v2w</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1vibktw" sourceRef="ServiceTask_0esu5ln" targetRef="ParallelGateway_10cahnx" />
-    <bpmn:serviceTask id="ServiceTask_076owvv" name="analyse module catalog" camunda:class="org.camunda.bpm.edugraph.extraction.Analysis">
+    <bpmn:serviceTask id="ServiceTask_076owvv" name="analyse module catalog">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">GET</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://172.16.32.159:8080/ModulKatalogController/REST/ModulKatalogREST/Kataloge/th-brandenburg.de%2Fwirtschaftsinformatik</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Accept">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="Output">
+              <camunda:script scriptFormat="Javascript"><![CDATA[var statusCode = connector.getVariable("statusCode");
+var response = connector.getVariable("response");
+
+var json = S(response);
+var bwlShare = json.prop("bwl");
+var wiShare = json.prop("wi");
+var infShare = json.prop("inf");
+var nnShare = json.prop("nn");
+
+connector.setVariable("bwlShare", bwlShare);
+connector.setVariable("wiShare", wiShare);
+connector.setVariable("infShare", infShare);
+connector.setVariable("nnShare", nnShare);
+
+if (statusCode == 403) {
+connector.setVariable("responseCatalogError", response);
+    throw new org.camunda.bpm.engine.delegate.BpmnError("AnalysisError");
+}]]></camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0kn1ngk</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1rpe4up</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -67,11 +150,66 @@
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_01qy3yc" sourceRef="BoundaryEvent_1dohgyc" targetRef="EndEvent_14t3eyd" />
     <bpmn:sequenceFlow id="SequenceFlow_1s936iu" sourceRef="ParallelGateway_0qi520u" targetRef="ServiceTask_1gr5io6" />
-    <bpmn:serviceTask id="ServiceTask_1draklq" name="store extracted triples" camunda:class="org.camunda.bpm.edugraph.extraction.SaveTriples">
+    <bpmn:serviceTask id="ServiceTask_1draklq" name="store extracted triples">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">text/turtle</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload"><![CDATA[${execution.getVariableTyped('extract').getValue().toString()}]]></camunda:inputParameter>
+            <camunda:outputParameter name="Output">
+              <camunda:script scriptFormat="Javascript"><![CDATA[var statusCode = connector.getVariable("statusCode");
+var response = connector.getVariable("response");
+connector.setVariable("body", response);
+if (statusCode == 403) {
+connector.setVariable("responseTripleError", response);
+    throw new org.camunda.bpm.engine.delegate.BpmnError("SaveTripleError");
+}]]></camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_174b9pn</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1huwilj</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_0esu5ln" name="store pillar shares" camunda:class="org.camunda.bpm.edugraph.extraction.SaveSubjectCatagories">
+    <bpmn:serviceTask id="ServiceTask_0esu5ln" name="store pillar shares">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">text/turtle</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="freemarker"><![CDATA[@prefix ns1:   <http://akwi.de/ns/bise#> .
+
+<http://www.fh-flensburg.de/2abc> ns1:bisePillar [ a               ns1:BISEPillarShare ;
+                               ns1:pillarBAM  ${bwlShare} ;
+                               ns1:pillarBIS  ${wiShare} ;
+                               ns1:pillarCSC  ${infShare};
+                               ns1:pillarNN  ${nnShare}
+                             ] ;]]></camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="output">
+              <camunda:script scriptFormat="Javascript"><![CDATA[var response = connector.getVariable("response");
+if (statusCode == 403) {
+connector.setVariable("storeError", response);
+    throw new org.camunda.bpm.engine.delegate.BpmnError("SavingSubjectError");
+}]]></camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>soap-http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1rpe4up</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1vibktw</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -85,7 +223,7 @@
       <bpmn:errorEventDefinition errorRef="Error_1mre0hf" />
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_10h13o6" name="storing failed" sourceRef="BoundaryEvent_1o3fo5f" targetRef="EndEvent_14t3eyd" />
-    <bpmn:serviceTask id="ServiceTask_071kwta" name="call extractor service" camunda:class="org.camunda.bpm.edugraph.extraction.RDFExtractor">
+    <bpmn:serviceTask id="ServiceTask_071kwta" name="call extractor service" camunda:class="org.camunda.bpm.getstarted.edugraph.Extractor">
       <bpmn:incoming>SequenceFlow_0t9yebw</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_174b9pn</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -98,7 +236,7 @@
   <bpmn:message id="Message_0wf7g9g" />
   <bpmn:message id="Message_07edybr" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="edugraph">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="edu-graph">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="173" y="146" width="36" height="36" />
         <bpmndi:BPMNLabel>
