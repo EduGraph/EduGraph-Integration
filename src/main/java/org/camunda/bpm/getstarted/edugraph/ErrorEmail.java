@@ -39,7 +39,7 @@ public class ErrorEmail implements JavaDelegate{
 		      try {
 		          email.setFrom("noreply@camunda.org");
 		          email.setSubject("Extraction Error");
-		          email.setMsg("Hi! I'm sorry to tell you that there is an error during the running of the process:  " + var1 + ".\n\n Best wishes, \n\n Demo Demo");
+		          email.setMsg("Hi! \n I'm sorry to tell you that there is an error during the running of the process.  \n" + ".\n\n Best wishes, \n\n Demo Demo");
 		          
 		          
 		          email.addTo(recipient);
@@ -56,7 +56,7 @@ public class ErrorEmail implements JavaDelegate{
 			      try {
 			          email.setFrom("noreply@camunda.org");
 			          email.setSubject("Triple Store Error");
-			          email.setMsg("Hi! I'm sorry to tell you that there is an error during the running of the process:  " + var2 + ".\n\n Best wishes, \n\n Demo Demo");
+			          email.setMsg("Hi! \n I'm sorry to tell you that there is an error during the running of the process.  \n" + var2 + ".\n\n Best wishes, \n\n Demo Demo");
 			          
 			          
 			          email.addTo(recipient);
@@ -73,7 +73,7 @@ public class ErrorEmail implements JavaDelegate{
 			      try {
 			          email.setFrom("noreply@camunda.org");
 			          email.setSubject("Analysis Error");
-			          email.setMsg("Hi! I'm sorry to tell you that there is an error during the running of the process:  " + var3 + ".\n\n Best wishes, \n\n Demo Demo");
+			          email.setMsg("Hi! \n I'm sorry to tell you that there is an error during the running of the process.  \n" + var3 + ".\n\n Best wishes, \n\n Demo Demo");
 			          
 			          
 			          email.addTo(recipient);
@@ -90,7 +90,7 @@ public class ErrorEmail implements JavaDelegate{
 			      try {
 			          email.setFrom("noreply@camunda.org");
 			          email.setSubject("Pillar Store Error");
-			          email.setMsg("Hi! I'm sorry to tell you that there is an error during the running of the process:  " + var4 + ".\n\n Best wishes, \n\n Demo Demo");
+			          email.setMsg("Hi! \n I'm sorry to tell you that there is an error during the running of the process.  \n" + var4 + ".\n\n Best wishes, \n\n Demo Demo");
 			          
 			          
 			          email.addTo(recipient);
@@ -107,7 +107,7 @@ public class ErrorEmail implements JavaDelegate{
 			      try {
 			          email.setFrom("noreply@camunda.org");
 			          email.setSubject("Transfer Error");
-			          email.setMsg("Hi! I'm sorry to tell you that there is an error during the running of the process:  " + var4 + ".\n\n Best wishes, \n\n Demo Demo");
+			          email.setMsg("Hi! \n I'm sorry to tell you that there is an error during the running of the process.  \n" + var4 + ".\n\n Best wishes, \n\n Demo Demo");
 			          
 			          
 			          email.addTo(recipient);

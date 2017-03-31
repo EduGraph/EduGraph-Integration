@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn11.xsd" id="definitions" name="definitions" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="mapping" name="Mapping">
+    <decisionTable id="decisionTable">
+      <input id="input1" label="URL">
+        <inputExpression id="inputExpression1" typeRef="string">        <text>enterURL</text>
+</inputExpression>
+      </input>
+      <output id="output1" label="server identifier" name="server" typeRef="string" />
+      <rule id="row-779451222-1">
+        <inputEntry id="UnaryTests_1b5h3q9">        <text><![CDATA["http://th-brandenburg.de/wirtschaft/wirtschaftsinformatik"]]></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_15nel7z">        <text><![CDATA["http://th-brandenburg.de/wirtschaftsinformatik"]]></text>
+</outputEntry>
+      </rule>
+      <rule id="row-779451222-2">
+        <inputEntry id="UnaryTests_0fkc2a9">        <text><![CDATA["http://extraktor.next-lvl-service.de/hsfi.js"]]></text>
+</inputEntry>
+        <outputEntry id="LiteralExpression_1s2xnbi">        <text><![CDATA["http://172.16.32.159:8080/ModulKatalogController/REST/ModulKatalogREST/Kataloge/th-brandenburg.de%2Fwirtschaftsinformatik"]]></text>
+</outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
