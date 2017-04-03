@@ -30,7 +30,6 @@ public class Extractor implements JavaDelegate {
 		String uri = (String) execution.getVariable("enterURL");
 		String requestURL = "http://rdf-translator.appspot.com/convert/json-ld/n3/" + uri;
 		String result;
-		String msg;
 		ObjectValue r;
 		RuntimeService runtimeService = execution.getProcessEngineServices().getRuntimeService();
 		
@@ -50,8 +49,8 @@ public class Extractor implements JavaDelegate {
 		}
 		catch (Exception e){
 			
-			msg = getMessage(uri);
-			result = msg + "\n" + e.getLocalizedMessage();
+			result = getMessage(uri);
+			//result = result + "\n" + e.getLocalizedMessage();
 			execution.setVariable("result", result);
 			runtimeService.setVariable(execution.getId(), "extractError", result);
 			throw new BpmnError("ExtractError");

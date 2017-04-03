@@ -9,7 +9,7 @@
       </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_0t9yebw</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_0t9yebw" sourceRef="StartEvent_1" targetRef="ServiceTask_071kwta" />
+    <bpmn:sequenceFlow id="SequenceFlow_0t9yebw" sourceRef="StartEvent_1" targetRef="ServiceTask_0zio729" />
     <bpmn:sequenceFlow id="SequenceFlow_174b9pn" sourceRef="ServiceTask_071kwta" targetRef="ServiceTask_1draklq" />
     <bpmn:sequenceFlow id="SequenceFlow_1huwilj" sourceRef="ServiceTask_1draklq" targetRef="ParallelGateway_0qi520u" />
     <bpmn:parallelGateway id="ParallelGateway_0qi520u">
@@ -164,7 +164,9 @@ connector.setVariable("responseSparqlError", response);
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="method">GET</camunda:inputParameter>
-            <camunda:inputParameter name="url">${server}</camunda:inputParameter>
+            <camunda:inputParameter name="url">
+              <camunda:script scriptFormat="freemarker">http://172.16.32.159:8080/ModulKatalogController/REST/ModulKatalogREST/Kataloge/${server}</camunda:script>
+            </camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
                 <camunda:entry key="Accept">application/json</camunda:entry>
@@ -209,7 +211,9 @@ connector.setVariable("responseCatalogError", response);
         <camunda:connector>
           <camunda:inputOutput>
             <camunda:inputParameter name="method">PUT</camunda:inputParameter>
-            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data</camunda:inputParameter>
+            <camunda:inputParameter name="url">
+              <camunda:script scriptFormat="freemarker">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data?graph=${enterURL}</camunda:script>
+            </camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
                 <camunda:entry key="Content-Type">text/turtle</camunda:entry>
@@ -236,22 +240,52 @@ connector.setVariable("responseTripleError", response);
       <bpmn:extensionElements>
         <camunda:connector>
           <camunda:inputOutput>
-            <camunda:inputParameter name="method">PUT</camunda:inputParameter>
-            <camunda:inputParameter name="url">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">
+              <camunda:script scriptFormat="freemarker">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/update</camunda:script>
+            </camunda:inputParameter>
             <camunda:inputParameter name="headers">
               <camunda:map>
-                <camunda:entry key="Content-Type">text/turtle</camunda:entry>
+                <camunda:entry key="Content-Type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Accept">application/sparql-results+json; charset=utf-8application/sparql-results+json; charset=utf-8</camunda:entry>
               </camunda:map>
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">
-              <camunda:script scriptFormat="freemarker"><![CDATA[@prefix ns1:   <http://akwi.de/ns/bise#> .
+              <camunda:script scriptFormat="freemarker"><![CDATA[update=PREFIX schema: <http://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX bise:  <http://akwi.de/ns/bise#>
+PREFIX dbpedia-de: <http://de.dbpedia.org/resource/>
+PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbr: <http://dbpedia.org/resource/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 
-<http://www.fh-flensburg.de/2abc> ns1:bisePillar [ a               ns1:BISEPillarShare ;
-                               ns1:pillarBAM  ${bwlShare} ;
-                               ns1:pillarBIS  ${wiShare} ;
-                               ns1:pillarCSC  ${infShare};
-                               ns1:pillarNN  ${nnShare}
-                             ] ;]]></camunda:script>
+INSERT {
+   GRAPH <${enterURL}> {
+       ?studyprogramURI bise:bisePillar  [ a  bise:BISEPillarShare ;
+                         bise:pillarBAM  ${bwlShare};
+                         bise:pillarBIS  ${wiShare};
+                         bise:pillarCSC  ${infShare};
+                         bise:pillarNN   ${nnShare}
+                       ].
+   }
+}
+WHERE {
+   GRAPH <enterURL> {
+           SELECT * WHERE {
+               ?studyprogramURI  a bise:BISEBachelor .
+           }
+           LIMIT 1
+   }
+}]]></camunda:script>
             </camunda:inputParameter>
             <camunda:outputParameter name="output">
               <camunda:script scriptFormat="Javascript"><![CDATA[var response = connector.getVariable("response");
@@ -278,7 +312,7 @@ connector.setVariable("storeError", response);
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_10h13o6" name="storing failed" sourceRef="BoundaryEvent_1o3fo5f" targetRef="EndEvent_14t3eyd" />
     <bpmn:serviceTask id="ServiceTask_071kwta" name="call extractor service" camunda:class="org.camunda.bpm.getstarted.edugraph.Extractor">
-      <bpmn:incoming>SequenceFlow_0t9yebw</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0yo5hd2</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_174b9pn</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:businessRuleTask id="BusinessRuleTask_0jt37uy" name="map URL to server identifier" camunda:resultVariable="server" camunda:decisionRef="mapping" camunda:mapDecisionResult="singleEntry">
@@ -287,6 +321,22 @@ connector.setVariable("storeError", response);
     </bpmn:businessRuleTask>
     <bpmn:sequenceFlow id="SequenceFlow_1b2mrnb" sourceRef="BusinessRuleTask_0jt37uy" targetRef="ServiceTask_076owvv" />
     <bpmn:sequenceFlow id="SequenceFlow_0kn1ngk" sourceRef="ParallelGateway_0qi520u" targetRef="BusinessRuleTask_0jt37uy" />
+    <bpmn:sequenceFlow id="SequenceFlow_0yo5hd2" sourceRef="ServiceTask_0zio729" targetRef="ServiceTask_071kwta" />
+    <bpmn:serviceTask id="ServiceTask_0zio729" name="drop previous extraction">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="method">DELETE</camunda:inputParameter>
+            <camunda:inputParameter name="url">
+              <camunda:script scriptFormat="freemarker">http://fbwsvcdev.fh-brandenburg.de:8080/fuseki/EduGraph-ESWC-extract/data?graph=${enterURL}</camunda:script>
+            </camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0t9yebw</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0yo5hd2</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmn:error id="Error_1f4zr5r" name="ExtractError" />
   <bpmn:error id="Error_0j08bts" name="SaveTripleError" />
@@ -298,14 +348,14 @@ connector.setVariable("storeError", response);
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="edu-graph">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="173" y="146" width="36" height="36" />
+        <dc:Bounds x="26" y="146" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="146" y="182" width="90" height="20" />
+          <dc:Bounds x="-1" y="182" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0t9yebw_di" bpmnElement="SequenceFlow_0t9yebw">
-        <di:waypoint xsi:type="dc:Point" x="209" y="164" />
-        <di:waypoint xsi:type="dc:Point" x="241" y="164" />
+        <di:waypoint xsi:type="dc:Point" x="62" y="164" />
+        <di:waypoint xsi:type="dc:Point" x="102" y="164" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="180" y="154" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -499,6 +549,16 @@ connector.setVariable("storeError", response);
           <dc:Bounds x="484" y="110.5" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0yo5hd2_di" bpmnElement="SequenceFlow_0yo5hd2">
+        <di:waypoint xsi:type="dc:Point" x="202" y="164" />
+        <di:waypoint xsi:type="dc:Point" x="241" y="164" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="154.5" y="154" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0zio729_di" bpmnElement="ServiceTask_0zio729">
+        <dc:Bounds x="102.19125683060108" y="124" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
